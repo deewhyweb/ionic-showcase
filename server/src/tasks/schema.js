@@ -64,7 +64,7 @@ const taskResolvers = {
       return result
     },
     updateTask: async (obj, clientData, context, info) => {
-      console.log("Update", clientData)
+      console.log("Update from client", clientData)
       const task = await context.db('tasks').select()
         .where('id', clientData.id).then((rows) => rows[0])
       if (!task) {
