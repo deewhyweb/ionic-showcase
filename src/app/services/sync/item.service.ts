@@ -14,6 +14,8 @@ import {
   ApolloOfflineStore
 } from 'offix-client-boost';
 import { subscriptionOptions } from './cache.updates';
+import { NetworkService } from '../../services/network.service';
+import { ConstantPool } from '@angular/compiler';
 
 @Injectable({
   providedIn: 'root'
@@ -22,10 +24,20 @@ export class ItemService {
 
   private readonly apollo: ApolloOfflineClient;
   private offlineStore: ApolloOfflineStore;
+  
 
-  constructor(aeroGear: VoyagerService) {
+  constructor(aeroGear: VoyagerService, public networkService: NetworkService) {
     this.apollo = aeroGear.apolloClient;
     this.offlineStore = aeroGear.offlineStore;
+    this.networkService.networkInterface.onStatusChangeListener({
+      onStatusChange: async (networkInfo) => {
+        console.log(`Item service, Network Online: ${networkInfo.online}`);
+        if (networkInfo.online === true) {
+          
+          await this.getItems();
+        }
+      }
+    });
   }
 
   /**
@@ -33,6 +45,7 @@ export class ItemService {
    */
   refreshItems() {
     // Force cache refresh by performing network
+    console.log('Doing refresh');
     return this.apollo.query<AllTasks>({
       query: GET_TASKS,
       fetchPolicy: 'network-only',
